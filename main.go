@@ -13,34 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type NameStore map[string]int
-
-var namestore NameStore
-
-func (ns *NameStore) GetName(name string) int {
-	num, ok := (*ns)[name]
-	if ok {
-		return num
-	}
-	return 0
-}
-
-func (ns *NameStore) PutName(name string) int {
-	num := (*ns)[name]
-	(*ns)[name] = num + 1
-	return (*ns)[name]
-}
-
-func (ns *NameStore) DeleteName(name string) int {
-	num := (*ns)[name]
-	if num > 1 {
-		(*ns)[name] = num - 1
-	} else if num == 1 {
-		delete((*ns), name)
-	}
-
-	return (*ns)[name]
-}
+var NS NameStore
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
@@ -58,20 +31,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	var num int
 	switch method {
 	case http.MethodGet:
-		num = namestore.GetName(name)
+		num = NS.GetName(name)
 		response = fmt.Sprintf("Have <%d> entries for <%s>\n", num, name)
 		status = http.StatusOK
 	case http.MethodPut:
-		num = namestore.PutName(name)
+		num = NS.PutName(name)
 		response = fmt.Sprintf("Have <%d> entries for <%s>\n", num, name)
 		status = http.StatusOK
 	case http.MethodDelete:
-		num = namestore.DeleteName(name)
+		num = NS.DeleteName(name)
 		response = fmt.Sprintf("Have <%d> entries for <%s>\n", num, name)
 		status = http.StatusOK
 	default:
 		log.Printf("Received unsupported %s request for %s\n", method, name)
-		response = fmt.Sprintf("Unsupported request")
+		response = fmt.Sprintf("Unsupported request: <%s>\n", method)
 		status = http.StatusBadRequest
 	}
 
@@ -114,7 +87,7 @@ func waitForShutdown(srv *http.Server) {
 // curl -s -X PUT 'localhost:8080?name=Hasti'
 func main() {
 	// Init NameStore
-	namestore = make(map[string]int)
+	NS = make(map[string]int)
 
 	// Create server and route handlers
 	r := mux.NewRouter()
