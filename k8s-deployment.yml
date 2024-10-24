@@ -42,3 +42,27 @@ spec:
             scheme: HTTP
           initialDelaySeconds: 5
           timeoutSeconds: 1 
+
+# Create a service by running
+# kubectl apply -f k8s-deployment.yml
+# kubectl get services
+#
+# Start the service by running the following in a seperate terminal, keep terminal open 
+# minikube service go-name-store-service --url 
+#
+# Interact with the service
+# curl -s -X PUT 'http://127.0.0.1:61274?name=Hasti'
+
+---
+apiVersion: v1
+kind: Service                    # Type of kubernetes resource
+metadata:
+  name: go-name-store-service    # Name of the resource
+spec:
+  type: NodePort                 # A port is opened on each node in your cluster via Kube proxy.
+  ports:                         # Take incoming HTTP requests on port 9090 and forward them to the targetPort of 8080
+  - name: http
+    port: 9090
+    targetPort: 8080
+  selector:
+    app: go-name-store           # Map any pod with label `app=go-hello-world` to this service
