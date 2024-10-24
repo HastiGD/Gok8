@@ -103,6 +103,10 @@ func waitForShutdown(srv *http.Server) {
 	os.Exit(0)
 }
 
+// To run the app
+// Run `go build` in project dir, ../../go-k8
+// Run `./go-k8`
+//
 // To Print only the status code
 // curl -s -o /dev/null -w "%{http_code}" -X GET 'localhost:8080?name=Hasti'
 //
